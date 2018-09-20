@@ -1,0 +1,76 @@
+{% extends base.html %}
+
+{% block body %}
+  <nav class="navbar navbar-default">
+    <div class="container">
+      <div class="navbar-header">
+        <a class="navbar-brand" href="">Tornado chat</a>
+      </div>
+      <div id="navbar">
+        <ul class="nav navbar-nav navbar-right">
+          <li><a href="/logout">Logout ({{ user }})</a></li>
+          <li><a href="/leave_channel">Leave room</a></li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+<div class="container">
+  <div class="row">
+    <div class="col-md-8" >
+      <div class="panel panel-info">
+        <div class="panel-heading" style="text-transform: uppercase;">
+          {{ channel }}
+        </div>
+        <div class="panel-body" id="message_div" style="overflow: scroll;">
+          <ul class="media-list" id="message_media_id">
+            {% for message in messages %}
+              <li class="media message_media">
+                <div class="media-body">
+                  <div class="media">
+                    <div class="media-body">
+                      <small class="text-muted"><strong>{{ message['user_name'] }}</strong> | {{ message['date'] }}</small><br />
+                      {% raw message['message'] %}
+                    </div>
+                  </div>
+                </div>
+              </li>
+            {% end %}
+          </ul>
+        </div>
+        <div class="panel-footer">
+            <form id="msg_form">
+              <div class="row">
+                <div class="col-xs-10">
+                <input id="msg_id" type="text" class="form-control" name="msg" placeholder="Your message..." required autocomplete="off">
+                </div>
+
+              <button class="btn btn-info" type="submit">SEND</button>
+              </div>
+            </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% end %}
+
+{% block scripts %}
+<script type="text/javascript">
+  $(document).ready(function() {
+    function windowSize(){
+        $("#message_div").css({ height: $(window).height() - 220 });
+        console.log($(window).height())
+    };
+    $(window).on('load resize',windowSize);
+    $('#users_media_id').append(
+      '<li class="media"> <div class="media-body"> <div class="media"> <div class="media-body"> <h5> {{ user }} </h5> </div> </div> </div> </li>'
+    );
+});
+
+</script>
+
+<script src="{{ static_url('chat.js') }}" type="text/javascript"></script>
+
+{% end %}

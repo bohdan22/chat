@@ -1,0 +1,74 @@
+{% extends base.html %}
+
+{% block body %}
+
+<style type="text/css">
+.ui-autocomplete {
+    position: absolute;
+    z-index: 1000;
+    cursor: default;
+    padding: 0;
+    margin-top: 2px;
+    list-style: none;
+    background-color: #ffffff;
+    border: 1px solid #ccc;
+    -webkit-border-radius: 5px;
+       -moz-border-radius: 5px;
+            border-radius: 5px;
+    -webkit-box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+       -moz-box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+}
+.ui-autocomplete > li {
+  padding: 3px 20px;
+}
+.ui-autocomplete > li.ui-state-focus {
+  background-color: #DDD;
+}
+.ui-helper-hidden-accessible {
+  display: none;
+}
+</style>
+
+    <div class="container">
+      <div class="col-md-3"></div>
+      <div class="col-md-6">
+      <div class="starter-template">
+        <div class="jumbotron">
+        <h1>Channels</h1>
+        {% if search_channels %}
+          {% for channel in search_channels %}
+              <p><a href="/channels/{{ channel['channel'] }}">{{ channel['channel'] }}</a></p>
+          {% end %}
+        {% end %}
+        <form accept-charset="UTF-8" action="/channels" method="post">
+          {% module xsrf_form_html() %}
+          <fieldset>
+              <div class="form-group">
+                  <input id="channels" class="form-control" placeholder="Channels" name="channel" type="text">
+              </div>
+              <input class="btn btn-success btn-block" type="submit" value="find">
+          </fieldset>
+          </form>
+        <p><a href="/create_channel">Create new channel</a></p>
+      </div>
+      </div>
+    </div>
+
+{% end %}
+
+{% block scripts %}
+<script>
+  $( function() {
+    var availableTags = [
+      {% for channel in all_channels %}
+      "{{ channel['channel'] }}",
+      {% end %}
+    ];
+    $( "#channels" ).autocomplete({
+      source: availableTags
+    });
+  } );
+  </script>
+
+{% end %}
