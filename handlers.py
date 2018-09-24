@@ -32,13 +32,7 @@ class ChannelsHandler(BaseHandler):
     async def get(self, *args, **kwargs):
         db = self.application.db
         channels = await get_channels(db, 'channels')
-        self.render('channels.html', user=self.current_user, channels=channels)
-
-
-class CreateChannelHandler(BaseHandler):
-
-    async def get(self):
-        self.render('create_channel.html', title='Create Channel', errors=None)
+        self.render('channels.html', user=self.current_user, channels=channels, errors=None)
 
     async def post(self):
         form = ChannelNameForm(self.request.arguments)
@@ -73,21 +67,23 @@ class ChannelHandler(BaseHandler):
         self.render('chat.html', user=self.current_user, messages=messages, channel=channel)
 
 
-class LeaveChannelHandler(BaseHandler):
-
-    @tornado.web.authenticated
-    async def get(self, *args, **kwargs):
-        self.redirect('/channels')
-
-
 class WebSocketHandler(BaseHandler, tornado.websocket.WebSocketHandler):
-    connections = set()
+    connections = {}
 
-    async def open(self):
-        self.connections.add(self)
+    def open(self, room):
+        self.room = room
+        try:
+            self.connections[room]
+        except KeyError:
+            self.connections[room] = []
+        self.connections[room].append(self)
+        print(self.connections)
 
-    async def on_close(self):
-        self.connections.remove(self)
+    def on_close(self):
+        self.connections[self.room].remove(self)
+        if len(self.connections[self.room]) < 1:
+            self.connections.pop(self.room)
+        print(self.connections)
 
     async def on_message(self, msg):
         db = self.application.db
@@ -99,10 +95,10 @@ class WebSocketHandler(BaseHandler, tornado.websocket.WebSocketHandler):
                                       'channel': data['room'],
                                       'message': data['msg']})
 
-        self.send_messages(data['msg'], date)
+        self.send_messages(data['msg'], date, data['room'])
 
-    def send_messages(self, msg, date):
-        for conn in self.connections:
+    def send_messages(self, msg, date, room):
+        for conn in self.connections[room]:
             conn.write_message(
                 {'name': self.current_user, 'msg': msg, 'date': date})
 

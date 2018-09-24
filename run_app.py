@@ -5,7 +5,7 @@ import tornado.web
 import motor
 
 
-from handlers import MainHandler, ChannelsHandler, CreateChannelHandler, LeaveChannelHandler, ChannelHandler, \
+from handlers import MainHandler, ChannelsHandler, LeaveChannelHandler, ChannelHandler, \
     WebSocketHandler, LoginHandler, SignUpHandler, LogoutHandler
 import settings
 
@@ -17,10 +17,9 @@ class Application(tornado.web.Application):
         handlers = [
             (r'/', MainHandler),
             (r'/channels', ChannelsHandler),
-            (r'/create_channel', CreateChannelHandler),
             (r'/leave_channel', LeaveChannelHandler),
             (r"/channels/(?P<channel>\w+)", ChannelHandler),
-            (r'/ws', WebSocketHandler),
+            (r'/ws/(.*)', WebSocketHandler),
             (r'/login', LoginHandler),
             (r'/sign_up', SignUpHandler),
             (r'/logout', LogoutHandler),

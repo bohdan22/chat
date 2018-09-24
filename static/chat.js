@@ -1,9 +1,7 @@
 // Support TLS-specific URLs, when appropriate.
-if (window.location.protocol == "https:") {
-  var ws_scheme = "wss://" + location.host + "/ws";
-} else {
-  var ws_scheme = "ws://" + location.host + "/ws"
-};
+var ws_scheme = "ws://" + location.host + "/ws/" + window.location.pathname.split('/')[2]
+
+console.log(window.location.pathname.split('/')[2])
 
 var ws = new ReconnectingWebSocket(ws_scheme, null, {debug: true, reconnectInterval: 200, reconnectDecay: 1});
 
@@ -41,7 +39,7 @@ $('#msg_form').submit(function(){
     $message = $("input[name='msg']")
     room = window.location.pathname.split('/')[2];
     var msg = $message.val()
-    if (msg.length < 4) {
+    if (msg.length < 1) {
         $("#message_form_id").addClass( "has-error" );
     }
     else{
